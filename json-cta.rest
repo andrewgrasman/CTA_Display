@@ -1,0 +1,24 @@
+### key=0d10de258b5d4962b0e3e013fad674e6
+
+### arrivals"  predictions for all platforms at a given train station 
+### Registration and receipt of an API key is required for use of this API.
+GET http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=0d10de258b5d4962b0e3e013fad674e6&max=1&mapid=40460&outputType=JSON
+Content-Type: application/json
+Accept: application/json
+
+### arrivals; XML ver
+GET http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=0d10de258b5d4962b0e3e013fad674e6&max=1&mapid=40360
+Content-Type: application/xml
+Accept: application/xml
+
+### 
+### follow this train: specific run, predicts a single train, when it may arrive, and upcoming stations, etc
+GET http://lapi.transitchicago.com/api/1.0/ttfollow.aspx?key=0d10de258b5d4962b0e3e013fad674e6&runnumber=123&outputType=JSON
+Content-Type: application/json
+Accept: application/json
+
+### locations: produces a list of in-service trains and basic info nd their locations for one
+### or more specified 'L' routes
+GET http://lapi.transitchicago.com/api/1.0/ttpositions.aspx?key=0d10de258b5d4962b0e3e013fad674e6&rt=blue&outputType=JSON
+Content-Type: application/json
+Accept: application/json
