@@ -7,6 +7,7 @@
 #include <Arduino.h>
 #include "drivers/ledLines.h"
 #include "drivers/stepperMotors.h"
+#include "drivers/infoGet.h"
 
 void setup(){
 
