@@ -3,7 +3,7 @@
 */
 
 #include "stepperMotors.h"
-#define stepsPerRevolution 32*32 //full step drive
+#define stepsPerRevolution 32*32 //full step drive (high torque)
 
 Stepper hourStep(stepsPerRevolution,39,40,41,42);
 Stepper tensStep(stepsPerRevolution,35,36,37,38);
