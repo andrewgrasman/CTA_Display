@@ -11,6 +11,12 @@ Stepper minsStep(stepsPerRevolution,20,21,47,48);
 Preferences prefs;
 uint8_t minute,tens,hour;
 
+void timeStore(){
+	prefs.begin("clk",false);
+	prefs.putUChar("mins",10*tens+minute);
+	prefs.putUChar("hrs",hour);
+	prefs.end();
+}
 void initStepperMotors(){
 	hourStep.setSpeed(60/12);
 	tensStep.setSpeed(60/6);
@@ -20,6 +26,7 @@ void initStepperMotors(){
 	tens=minute/10;
 	minute=minute%10;
 	hour=prefs.getUChar("hrs",1);
+	prefs.end();
 }
 void setNewTime(uint8_t hour,uint8_t minute){
 	minsStep.step((minute%10-::minute)%10*stepsPerRevolution/10);
@@ -28,6 +35,7 @@ void setNewTime(uint8_t hour,uint8_t minute){
 	::hour=hour;
 	tens=minute/10;
 	::minute=minute%10;
+	timeStore();
 }
 void nextMin(){
 	if(++minute==10){
@@ -41,5 +49,21 @@ void nextMin(){
 				hourStep.step(stepsPerRevolution/12);
 			}
 		}
+		timeStore();
+	}
+}
+void manualStep(uint8_t id,int steps){
+	switch (id){
+		case 0:
+		hourStep.step(steps);
+		break;
+		case 1:
+		tensStep.step(steps);
+		break;
+		case 2:
+		minsStep.step(steps);
+		break;
+		default:
+		break;
 	}
 }
