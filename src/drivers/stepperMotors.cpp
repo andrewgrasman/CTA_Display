@@ -5,9 +5,9 @@
 #include "stepperMotors.h"
 #define stepsPerRevolution 32*32 //full step drive (high torque)
 
-Stepper hourStep(stepsPerRevolution,39,40,41,42);
-Stepper tensStep(stepsPerRevolution,35,36,37,38);
-Stepper minsStep(stepsPerRevolution,20,21,47,48);
+Stepper hourStep(stepsPerRevolution,39,40,41,42); // 1 to 12
+Stepper tensStep(stepsPerRevolution,35,36,37,38); // 0 to 5
+Stepper minsStep(stepsPerRevolution,20,21,47,48); // 0 to 9
 Preferences prefs;
 uint8_t minute,tens,hour;
 
@@ -18,7 +18,7 @@ void timeStore(){
 	prefs.end();
 }
 void initStepperMotors(){
-	hourStep.setSpeed(60/12);
+	hourStep.setSpeed(60/12); //leads to 60 flaps per minuite on each
 	tensStep.setSpeed(60/6);
 	minsStep.setSpeed(60/10);
 	prefs.begin("clk",false);
