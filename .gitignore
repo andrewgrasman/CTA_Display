@@ -3,5 +3,5 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
-src/api.key
+src/secrets.h
 CTA_Display.code-workspace
