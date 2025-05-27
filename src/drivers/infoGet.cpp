@@ -171,4 +171,4 @@ void fetchStationIdsTest() {
 //         curl_global_cleanup();
 //         curl = NULL;
 //     }
-}
+// }
