@@ -1,12 +1,3 @@
-#include <WiFi.h>
-#include <WiFiMulti.h>
-#include <iostream>
-#include <HTTPClient.h>
-#include <string>
-#include <json_parser.h>
-#include <set>
-#include <vector>
-#include "secrets.h"
 #include "infoGet.h"
 
 const char* rootCert=\
@@ -41,20 +32,20 @@ WiFiClientSecure *client;
 void setClock() {
   configTzTime("CDT",0, 0, "pool.ntp.org");
 
-  Serial.print(F("Waiting for NTP time sync: "));
+  Serial0.print(F("Waiting for NTP time sync: "));
   time_t nowSecs = time(nullptr);
   while (nowSecs < 8 * 3600 * 2) {
     delay(500);
-    Serial.print(F("."));
+    Serial0.print(F("."));
     yield();
     nowSecs = time(nullptr);
   }
 
-  Serial.println();
+  Serial0.println();
   struct tm timeinfo;
   gmtime_r(&nowSecs, &timeinfo);
-  Serial.print(F("Current time: "));
-  Serial.print(asctime(&timeinfo));
+  Serial0.print(F("Current time: "));
+  Serial0.print(asctime(&timeinfo));
 }
 
 WiFiMulti wifiMulti;
@@ -62,11 +53,11 @@ void wifiInit(){
 	WiFi.mode(WIFI_STA);
 	for(int i=0;i<sizeof(wifiInfo)/sizeof(*wifiInfo);i++)
 		wifiMulti.addAP(wifiInfo[i][0],wifiInfo[i][0]);
-  Serial.print("Waiting for WiFi to connect...");
+  Serial0.print("Waiting for WiFi to connect...");
   while((wifiMulti.run() != WL_CONNECTED)) {
-    Serial.print(".");
+    Serial0.print(".");
   }
-  Serial.println(" connected");
+  Serial0.println(" connected");
 }
 
 void clientInit(){
@@ -74,7 +65,7 @@ void clientInit(){
   if(client){
     client -> setCACert(rootCert);
   } else {
-    Serial.println("Failed to create WiFiClientSecure instance");
+    Serial0.println("Failed to create WiFiClientSecure instance");
   }
 }
 void clientDestroy(){
@@ -126,12 +117,12 @@ void fetchStationIds() {
             json_parse_end_static(&jctx);
         }
 
-        Serial.println("Station IDs with trains:");
+        Serial0.println("Station IDs with trains:");
         for (int id : stationIds) {
-            Serial.println(id);
+            Serial0.println(id);
         }
     } else {
-        Serial.printf("GET failed, error: %s\n", https.errorToString(httpCode).c_str());
+        Serial0.printf("GET failed, error: %s\n", https.errorToString(httpCode).c_str());
     }
     https.end();
 }
@@ -141,7 +132,7 @@ void fetchStationIdsTest() {
     setClock();
     fetchStationIds();
     clientDestroy();
-    Serial.println("Done fetching station IDs.");
+    Serial0.println("Done fetching station IDs.");
 }
 
 
