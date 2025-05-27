@@ -32,20 +32,20 @@ WiFiClientSecure *client;
 void setClock() {
   configTzTime("CDT",0, 0, "pool.ntp.org");
 
-  Serial0.print(F("Waiting for NTP time sync: "));
+  Serial.print(F("Waiting for NTP time sync: "));
   time_t nowSecs = time(nullptr);
   while (nowSecs < 8 * 3600 * 2) {
     delay(500);
-    Serial0.print(F("."));
+    Serial.print(F("."));
     yield();
     nowSecs = time(nullptr);
   }
 
-  Serial0.println();
+  Serial.println();
   struct tm timeinfo;
   gmtime_r(&nowSecs, &timeinfo);
-  Serial0.print(F("Current time: "));
-  Serial0.print(asctime(&timeinfo));
+  Serial.print(F("Current time: "));
+  Serial.print(asctime(&timeinfo));
 }
 
 WiFiMulti wifiMulti;
@@ -53,11 +53,11 @@ void wifiInit(){
 	WiFi.mode(WIFI_STA);
 	for(int i=0;i<sizeof(wifiInfo)/sizeof(*wifiInfo);i++)
 		wifiMulti.addAP(wifiInfo[i][0],wifiInfo[i][0]);
-  Serial0.print("Waiting for WiFi to connect...");
+  Serial.print("Waiting for WiFi to connect...");
   while((wifiMulti.run() != WL_CONNECTED)) {
-    Serial0.print(".");
+    Serial.print(".");
   }
-  Serial0.println(" connected");
+  Serial.println(" connected");
 }
 
 void clientInit(){
@@ -65,7 +65,7 @@ void clientInit(){
   if(client){
     client -> setCACert(rootCert);
   } else {
-    Serial0.println("Failed to create WiFiClientSecure instance");
+    Serial.println("Failed to create WiFiClientSecure instance");
   }
 }
 void clientDestroy(){
@@ -117,12 +117,12 @@ void fetchStationIds() {
             json_parse_end_static(&jctx);
         }
 
-        Serial0.println("Station IDs with trains:");
+        Serial.println("Station IDs with trains:");
         for (int id : stationIds) {
-            Serial0.println(id);
+            Serial.println(id);
         }
     } else {
-        Serial0.printf("GET failed, error: %s\n", https.errorToString(httpCode).c_str());
+        Serial.printf("GET failed, error: %s\n", https.errorToString(httpCode).c_str());
     }
     https.end();
 }
@@ -132,7 +132,7 @@ void fetchStationIdsTest() {
     setClock();
     fetchStationIds();
     clientDestroy();
-    Serial0.println("Done fetching station IDs.");
+    Serial.println("Done fetching station IDs.");
 }
 
 
