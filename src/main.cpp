@@ -8,10 +8,12 @@
 #include "drivers/ledLines.h"
 #include "drivers/stepperMotors.h"
 #include "drivers/infoGet.h"
+#include "drivers/LCD.h"
 
 void setup(){
-
+    lcdinit();
 }
 void loop(){
-
+    checkSwitch();
 }
+
