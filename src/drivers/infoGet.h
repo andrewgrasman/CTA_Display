@@ -14,4 +14,3 @@ extern void wifiInit();
 extern void clientInit();
 extern void clientDestroy();
 extern void fetchStationIds();
-extern void fetchStationIdsTest();

@@ -31,7 +31,7 @@ WiFiClientSecure *client;
 // using namespace std;
 void setClock() {
   configTzTime("CDT",0, 0, "pool.ntp.org");
-
+  
   Serial.print(F("Waiting for NTP time sync: "));
   time_t nowSecs = time(nullptr);
   while (nowSecs < 8 * 3600 * 2) {
@@ -40,7 +40,7 @@ void setClock() {
     yield();
     nowSecs = time(nullptr);
   }
-
+  
   Serial.println();
   struct tm timeinfo;
   gmtime_r(&nowSecs, &timeinfo);
@@ -50,9 +50,9 @@ void setClock() {
 
 WiFiMulti wifiMulti;
 void wifiInit(){
-	WiFi.mode(WIFI_STA);
-	for(int i=0;i<sizeof(wifiInfo)/sizeof(*wifiInfo);i++)
-		wifiMulti.addAP(wifiInfo[i][0],wifiInfo[i][0]);
+  WiFi.mode(WIFI_STA);
+  for(int i=0;i<sizeof(wifiInfo)/sizeof(*wifiInfo);i++)
+  wifiMulti.addAP(wifiInfo[i][0],wifiInfo[i][0]);
   Serial.print("Waiting for WiFi to connect...");
   while((wifiMulti.run() != WL_CONNECTED)) {
     Serial.print(".");
@@ -76,90 +76,56 @@ void clientDestroy(){
 }
 
 void fetchStationIds() {
-    HTTPClient https;
-    https.begin(*client, url+"&rt=blue"); 
-
-    int httpCode = https.GET();
-    if (httpCode > 0) {
-        String payload = https.getString();
-        jparse_ctx_t jctx;
-        json_tok_t tokens[MAX_JSON_TOKENS];
-        std::set<int> stationIds;
-
-        if (json_parse_start_static(&jctx, payload.c_str(), payload.length(), tokens, MAX_JSON_TOKENS) == OS_SUCCESS) {
-            // Enter ctatt object
-            if (json_obj_get_object(&jctx, "ctatt") == OS_SUCCESS) {
-                // Enter route array
-                int num_routes = 0;
-                if (json_obj_get_array(&jctx, "route", &num_routes) == OS_SUCCESS && num_routes > 0) {
-                    // Enter first route object
-                    if (json_arr_get_object(&jctx, 0) == OS_SUCCESS) {
-                        // Enter train array
-                        int num_trains = 0;
-                        if (json_obj_get_array(&jctx, "train", &num_trains) == OS_SUCCESS) {
-                            for (int i = 0; i < num_trains; ++i) {
-                                if (json_arr_get_object(&jctx, i) == OS_SUCCESS) {
-                                    int staId = 0;
-                                    if (json_obj_get_int(&jctx, "staId", &staId) == OS_SUCCESS) {
-                                        stationIds.insert(staId);
-                                    }
-                                    json_arr_leave_object(&jctx);
-                                }
-                            }
-                            json_obj_leave_array(&jctx);
-                        }
-                        json_arr_leave_object(&jctx);
-                    }
-                    json_obj_leave_array(&jctx);
+  clientInit();
+  HTTPClient https;
+  https.begin(*client, url+"&rt=blue"); 
+  
+  int httpCode = https.GET();
+  if (httpCode > 0) {
+    String payload = https.getString();
+    jparse_ctx_t jctx;
+    json_tok_t tokens[MAX_JSON_TOKENS];
+    std::set<int> stationIds;
+    
+    if (json_parse_start_static(&jctx, payload.c_str(), payload.length(), tokens, MAX_JSON_TOKENS) == OS_SUCCESS) {
+      // Enter ctatt object
+      if (json_obj_get_object(&jctx, "ctatt") == OS_SUCCESS) {
+        // Enter route array
+        int num_routes = 0;
+        if (json_obj_get_array(&jctx, "route", &num_routes) == OS_SUCCESS && num_routes > 0) {
+          // Enter first route object
+          if (json_arr_get_object(&jctx, 0) == OS_SUCCESS) {
+            // Enter train array
+            int num_trains = 0;
+            if (json_obj_get_array(&jctx, "train", &num_trains) == OS_SUCCESS) {
+              for (int i = 0; i < num_trains; ++i) {
+                if (json_arr_get_object(&jctx, i) == OS_SUCCESS) {
+                  int staId = 0;
+                  if (json_obj_get_int(&jctx, "staId", &staId) == OS_SUCCESS) {
+                    stationIds.insert(staId);
+                  }
+                  json_arr_leave_object(&jctx);
                 }
-                json_obj_leave_object(&jctx);
+              }
+              json_obj_leave_array(&jctx);
             }
-            json_parse_end_static(&jctx);
+            json_arr_leave_object(&jctx);
+          }
+          json_obj_leave_array(&jctx);
         }
-
-        Serial.println("Station IDs with trains:");
-        for (int id : stationIds) {
-            Serial.println(id);
-        }
-    } else {
-        Serial.printf("GET failed, error: %s\n", https.errorToString(httpCode).c_str());
+        json_obj_leave_object(&jctx);
+      }
+      json_parse_end_static(&jctx);
     }
-    https.end();
+    
+    Serial.println("Station IDs with trains:");
+    for (int id : stationIds) {
+      Serial.println(id);
+      //TODO: store array by line: tupple: position, time to next destination
+    }
+  } else {
+    Serial.printf("GET failed, error: %s\n", https.errorToString(httpCode).c_str());
+  }
+  https.end();
+  clientDestroy();
 }
-void fetchStationIdsTest() {
-    wifiInit();
-    clientInit();
-    setClock();
-    fetchStationIds();
-    clientDestroy();
-    Serial.println("Done fetching station IDs.");
-}
-
-
-// size_t writeFunction(void* ptr, size_t size, size_t nmemb, std::string* data) {
-//     data->append((char*)ptr, size * nmemb);
-//     return size * nmemb;
-// }
-
-// int main(int argc, char** argv) {
-//     curl_global_init(CURL_GLOBAL_DEFAULT);
-//     auto curl = curl_easy_init();
-//     if (curl) {
-//         curl_easy_setopt(curl, CURLOPT_URL, "http://lapi.transitchicago.com/api/1.0/ttpositions.aspx?key=0d10de258b5d4962b0e3e013fad674e6&rt=blue&outputType=JSON");
-//         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-//         curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
-//         curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
-
-//         std::string response_string;
-//         std::string header_string;
-//         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
-//         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
-//         curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
-
-//         curl_easy_perform(curl);
-//         cout << response_string;
-//         curl_easy_cleanup(curl);
-//         curl_global_cleanup();
-//         curl = NULL;
-//     }
-// }
