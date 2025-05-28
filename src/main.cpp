@@ -27,6 +27,7 @@ void setup(){
 	lcdinit();
 	//TODO: lcdMainMenu();
 	pixels.begin(); //single neopixel can be used for debugging
+	pixels.setPixelColor(0, 0xFF0000);
 
 	initStepperMotors();
 	//TODO: align to actual seconds
@@ -59,17 +60,22 @@ void setup(){
 // cppcheck-suppress unusedFunction
 void loop(){
 	//sign of life
-	//TODO: implement using millis();
-	pixels.setPixelColor(0, 0xFF0000);
-	pixels.show(); // Update the strip to show the changes
-	delay(1000);
-	pixels.setPixelColor(0, 0);
-	pixels.show();
-	delay(1000);
+	static unsigned long lastUpdate = 0;
+	if (millis() - lastUpdate >= 1000) {
+		lastUpdate = millis();
+		if(pixels.getPixelColor(0)==0) {
+			pixels.setPixelColor(0, 0xFF0000);
+		} else {
+			pixels.setPixelColor(0, 0x000000);
+		}
+		pixels.show(); // Update the strip to show the changes
+	}
 
-	//checkSwitch();//DONE: implement as interrupt on three pins
+	//checkSwitch();//DONE: implement as interrupts on three pins
 	
 	//TODO: implement BT Serial for on the fly flap clock control
-	//if()manualStep(0-3,steps);
+	//Handle negatives by doing most of a full revolution
+	// manualStep(id,steps); //id is 0 for hour, 1 for tens, 2 for minutes
+	//TODO:option to send time displayed in military format (100*hour+minute) to realign to current time
 }
 
