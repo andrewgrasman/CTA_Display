@@ -43,18 +43,18 @@ void setup(){
 	esp_timer_create(&clockTimerArgs, &clockTimer);
 	esp_timer_start_periodic(clockTimer, 60*1000000);
 	
-	esp_timer_create_args_t clockTimerArgs = {
+	esp_timer_create_args_t apiTimerArgs = {
 		.callback = [](void* arg) {
 			fetchStationIds();
 			//TODO: update lines
 			//TODO: update LCD if on eta display
 			//possible realign to api publish time
 		},
-		.name = "Clock Timer"
+		.name = "API Timer"
 	};
-	esp_timer_handle_t clockTimer;
-	esp_timer_create(&clockTimerArgs, &clockTimer);
-	esp_timer_start_periodic(clockTimer, 60*1000000);
+	esp_timer_handle_t apiTimer;
+	esp_timer_create(&apiTimerArgs, &apiTimer);
+	esp_timer_start_periodic(apiTimer, 60*1000000);
 
 }
 // cppcheck-suppress unusedFunction

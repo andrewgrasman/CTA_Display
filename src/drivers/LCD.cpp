@@ -3,6 +3,9 @@
 #include "LCD.h"
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
+void IRAM_ATTR handleLeftButtonInterrupt();
+void IRAM_ATTR handleRightButtonInterrupt();
+void IRAM_ATTR handleConfButtonInterrupt();
 
 void lcdinit(){
     pinMode(4, INPUT_PULLUP); // left button
